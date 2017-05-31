@@ -1,11 +1,14 @@
 package com.jasontoradler.moviesearch;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -84,6 +87,11 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
         }
     }
 
+    /**
+     * MovieDetails are bound and displayed in simple key-value (String-String) pair of TextViews.
+     * Each list item alternates between a dark and light background. Also, URL values are made
+     * clickable.
+     */
     private static class DetailsAdapter extends RecyclerView.Adapter<DetailsAdapter.ViewHolder> {
 
         final List<Pair<String, String>> data;
@@ -102,6 +110,13 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             final Pair<String, String> entry = data.get(position);
+            final Resources resources = holder.itemView.getResources();
+            // alternate background color on each list item
+            if (position % 2 == 0) {
+                holder.itemView.setBackgroundColor(resources.getColor(R.color.darkItem));
+            } else {
+                holder.itemView.setBackgroundColor(resources.getColor(R.color.lightItem));
+            }
             holder.key.setText(entry.first);
             holder.value.setText(entry.second);
         }
@@ -120,7 +135,10 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
                 super(itemView);
                 itemView.setOnClickListener(this);
                 key = (TextView) itemView.findViewById(android.R.id.text1);
+                key.setBackgroundResource(android.R.color.transparent);
                 value = (TextView) itemView.findViewById(android.R.id.text2);
+                value.setBackgroundResource(android.R.color.transparent);
+                value.setAutoLinkMask(Linkify.WEB_URLS);
             }
 
             @Override

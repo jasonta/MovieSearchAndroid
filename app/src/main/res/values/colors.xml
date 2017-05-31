@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="lightGray">#E0E0E0</color>
     <color name="dividerColor">#ff101010</color>
+    <color name="darkItem">#ffdadada</color>
+    <color name="lightItem">#fffafafa</color>
+    <color name="searchTint">#ffc0c0c0</color>
 </resources>

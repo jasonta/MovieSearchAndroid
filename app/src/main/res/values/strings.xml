@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Movie Search</string>
-    <string name="searchLabel">Search for movies and TV shows.</string>
+    <string name="searchLabel">Search for Movies and TV Shows</string>
     <string name="clear">Clear</string>
     <string name="submit">Submit</string>
     <string name="search_hint">"Tap to enter search keyword"</string>
-    <string name="title_search_url">"https://www.omdbapi.com/?s=%1$s&amp;page=%2$d"</string>
-    <string name="id_search_url">"https://www.omdbapi.com/?i=%1$s"</string>
+    <string name="title_search_url">"https://www.omdbapi.com/?s=%1$s&amp;page=%2$d&amp;apikey=bd525877"</string>
+    <string name="id_search_url">"https://www.omdbapi.com/?i=%1$s&amp;apikey=bd525877"</string>
     <string name="searchResultsTitle">"\"%1$s\" : %2$d matches"</string>
     <string name="no_results">No results</string>
     <string name="title">MOVIE SEARCH</string>

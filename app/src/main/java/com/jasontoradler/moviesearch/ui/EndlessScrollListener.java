@@ -8,36 +8,36 @@ import android.support.v7.widget.RecyclerView;
  */
 public abstract class EndlessScrollListener extends RecyclerView.OnScrollListener {
 
-    private int visibleThreshold = 10;
-    private int currentPage = 0;
-    private int previousTotalItemCount = 0;
-    private boolean loading = true;
-    private final RecyclerView.LayoutManager layoutManager;
+    private int mVisibleThreshold = 10;
+    private int mCurrentPage = 0;
+    private int mPreviousTotalItemCount = 0;
+    private boolean mLoading = true;
+    private final RecyclerView.LayoutManager mLayoutManager;
 
     public EndlessScrollListener(LinearLayoutManager layoutManager) {
-        this.layoutManager = layoutManager;
+        mLayoutManager = layoutManager;
     }
 
     @Override
     public void onScrolled(RecyclerView view, int dx, int dy) {
-        int totalItemCount = layoutManager.getItemCount();
-        if (loading && (totalItemCount > previousTotalItemCount)) {
-            loading = false;
-            previousTotalItemCount = totalItemCount;
+        int totalItemCount = mLayoutManager.getItemCount();
+        if (mLoading && (totalItemCount > mPreviousTotalItemCount)) {
+            mLoading = false;
+            mPreviousTotalItemCount = totalItemCount;
         }
 
         // if loading is finished and view is scrolled past threshold, increment the page and
         // kick off a new load
-        int lastVisibleItemPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
-        if (!loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
-            currentPage++;
-            onLoadMore(currentPage);
-            loading = true;
+        int lastVisibleItemPosition = ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
+        if (!mLoading && (lastVisibleItemPosition + mVisibleThreshold) > totalItemCount) {
+            mCurrentPage++;
+            onLoadMore(mCurrentPage);
+            mLoading = true;
         }
     }
 
     public void setCurrentPage(int page) {
-        this.currentPage = page;
+        this.mCurrentPage = page;
     }
 
     /**
@@ -47,13 +47,13 @@ public abstract class EndlessScrollListener extends RecyclerView.OnScrollListene
      * @param visibleThreshold number of items below last visible item before loading more
      */
     public void setVisibleThreshold(int visibleThreshold) {
-        this.visibleThreshold = visibleThreshold;
+        mVisibleThreshold = visibleThreshold;
     }
 
     protected void resetState() {
-        currentPage = 0;
-        previousTotalItemCount = 0;
-        loading = true;
+        mCurrentPage = 0;
+        mPreviousTotalItemCount = 0;
+        mLoading = true;
     }
 
     /**

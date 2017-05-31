@@ -9,8 +9,8 @@ import java.util.List;
 
 /**
 
- Corresponds to the movie/series details queried by IMDB ID. All String-String key-value pairs are
- added to the 'data' list except the "Response", "Poster", and "Title" fields. The non-String values
+ Corresponds to the movie/series details queried by IMDB id. All key-value pairs are added to the
+ 'data' list except the "Response", "Poster", and "Title" fields. The non-String values
  are ignored (e.g. the Ratings) for now.
 
  For example:
