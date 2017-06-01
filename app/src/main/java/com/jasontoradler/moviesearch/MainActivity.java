@@ -19,15 +19,15 @@ import com.jasontoradler.moviesearch.network.SearchTool;
  */
 public class MainActivity extends Activity {
 
-    private EditText searchBox;
+    private EditText mSearchBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        searchBox = (EditText) findViewById(R.id.searchBox);
-        searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mSearchBox = (EditText) findViewById(R.id.searchBox);
+        mSearchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
@@ -41,10 +41,10 @@ public class MainActivity extends Activity {
     }
 
     private void search() {
-        final String keyword = searchBox.getText().toString();
+        final String keyword = mSearchBox.getText().toString();
         if (!keyword.isEmpty()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(mSearchBox.getWindowToken(), 0);
 
             SearchTool.instance(this).clearResults();
 
@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
     }
 
     public void onClearButtonClick(View view) {
-        searchBox.setText("");
+        mSearchBox.setText("");
         SearchTool.instance(this).clearResults();
     }
 

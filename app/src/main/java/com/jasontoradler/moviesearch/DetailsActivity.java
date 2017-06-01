@@ -7,7 +7,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.util.Pair;
@@ -32,20 +31,20 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
     public static final String EXTRA_SEARCH_ITEM_ID = "searchItemId";
 
     private static final String TAG = "DetailsActivity";
-    private RecyclerView detailsList;
-    private NetworkImageView networkImageView;
-    private TextView title;
-    private ProgressBar progressBar;
+    private RecyclerView mDetailsList;
+    private NetworkImageView mNetworkImageView;
+    private TextView mTitle;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        detailsList = (RecyclerView) findViewById(R.id.detailsList);
-        networkImageView = (NetworkImageView) findViewById(R.id.detailsImage);
-        title = (TextView) findViewById(R.id.title);
-        progressBar = (ProgressBar) findViewById(R.id.progress);
+        mDetailsList = (RecyclerView) findViewById(R.id.detailsList);
+        mNetworkImageView = (NetworkImageView) findViewById(R.id.detailsImage);
+        mTitle = (TextView) findViewById(R.id.title);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress);
 
         final String id = getIntent().getStringExtra(EXTRA_SEARCH_ITEM_ID);
         Log.d(TAG, "imdbId: " + id);
@@ -68,20 +67,20 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
             Log.d(TAG, "onSuccess: " + movieDetails);
 
             final SearchTool searchTool = SearchTool.instance(DetailsActivity.this);
-            networkImageView.setImageUrl(movieDetails.poster, searchTool.getImageLoader());
-            networkImageView.setDefaultImageResId(R.mipmap.noimageavailable);
-            networkImageView.setVisibility(View.VISIBLE);
-            title.setText(movieDetails.title);
-            title.setVisibility(View.VISIBLE);
+            mNetworkImageView.setImageUrl(movieDetails.poster, searchTool.getImageLoader());
+            mNetworkImageView.setDefaultImageResId(R.mipmap.noimageavailable);
+            mNetworkImageView.setVisibility(View.VISIBLE);
+            mTitle.setText(movieDetails.title);
+            mTitle.setVisibility(View.VISIBLE);
 
             LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            detailsList.setLayoutManager(layoutManager);
-            detailsList.addItemDecoration(new DividerItemDecoration(detailsList.getContext(),
+            mDetailsList.setLayoutManager(layoutManager);
+            mDetailsList.addItemDecoration(new DividerItemDecoration(mDetailsList.getContext(),
                     layoutManager.getOrientation()));
-            detailsList.setAdapter(new DetailsAdapter(movieDetails.data));
-            detailsList.setVisibility(View.VISIBLE);
+            mDetailsList.setAdapter(new DetailsAdapter(movieDetails.data));
+            mDetailsList.setVisibility(View.VISIBLE);
 
-            progressBar.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
         } else {
             Log.e(TAG, "onSuccess error: MovieDetails is null");
         }
