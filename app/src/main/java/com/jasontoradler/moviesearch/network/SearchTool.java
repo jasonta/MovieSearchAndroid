@@ -93,6 +93,12 @@ public final class SearchTool {
         return searchItems;
     }
 
+    public SearchItem getItem(int position) {
+        return (searchItems != null && position < searchItems.size())
+                ? searchItems.get(position)
+                : null;
+    }
+
     public int getTotalItems() {
         return totalItems;
     }
@@ -215,7 +221,7 @@ public final class SearchTool {
                         movieDetails.response = value;
                     } else if (entry.getKey().equalsIgnoreCase("poster")) {
                         movieDetails.poster = value;
-                    } else  if (entry.getKey().equalsIgnoreCase("title")) {
+                    } else if (entry.getKey().equalsIgnoreCase("title")) {
                         movieDetails.title = value;
                     } else {
                         movieDetails.data.add(new Pair<>(entry.getKey(), value));

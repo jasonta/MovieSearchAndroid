@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -44,8 +45,8 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
     private RecyclerView mRecyclerView;
     private TextView mNoResultsText;
     private String mKeyword;
-    private int page = 1;
-    private boolean isInitialSearchDone;
+    private int mPage = 1;
+    private boolean mIsInitialSearchDone;
     private ResultsAdapter mResultsAdapter;
 
     @Override
@@ -59,8 +60,8 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
         mProgressBar = (ProgressBar) findViewById(R.id.resultsProgressBar);
 
         if (savedInstanceState != null) {
-            page = savedInstanceState.getInt(KEY_PAGE, 1);
-            isInitialSearchDone = savedInstanceState.getBoolean(KEY_IS_INITIAL_SEARCH_DONE);
+            mPage = savedInstanceState.getInt(KEY_PAGE, 1);
+            mIsInitialSearchDone = savedInstanceState.getBoolean(KEY_IS_INITIAL_SEARCH_DONE);
             mKeyword = savedInstanceState.getString(KEY_KEYWORD);
         }
 
@@ -75,29 +76,40 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
             }
         };
         scrollListener.setVisibleThreshold(VISIBLE_THRESHOLD);
-        scrollListener.setCurrentPage(page);
+        scrollListener.setCurrentPage(mPage);
         mRecyclerView.addOnScrollListener(scrollListener);
-        mResultsAdapter = new ResultsAdapter(this, new AdapterItemClickListener() {
+        mResultsAdapter = new ResultsAdapter(this, new ResultsAdapterClickListener() {
             @Override
-            public void onClick(int position) {
-                SearchTool queue = SearchTool.instance(SearchResultsActivity.this);
-                final List<SearchItem> list = queue.getSearchItems();
-                if (position < list.size()) {
-                    final SearchItem searchItem = list.get(position);
+            public void onItemClick(int position) {
+                SearchTool searchTool = SearchTool.instance(SearchResultsActivity.this);
+                SearchItem searchItem = searchTool.getItem(position);
+                if (searchItem != null) {
                     Intent intent = new Intent(SearchResultsActivity.this, DetailsActivity.class);
                     intent.putExtra(DetailsActivity.EXTRA_SEARCH_ITEM_ID, searchItem.imdbID);
                     startActivity(intent);
                 }
             }
+
+            @Override
+            public void onHeartClick(int position) {
+                Log.d(TAG, "onHeartClick: " + position);
+                SearchTool searchTool = SearchTool.instance(SearchResultsActivity.this);
+                SearchItem searchItem = searchTool.getItem(position);
+                if (searchItem != null) {
+                    searchItem.isFavorite ^= true;
+                    Log.d(TAG, "set '" + searchItem.Title + "' to favorite: " + searchItem.isFavorite);
+                    mResultsAdapter.notifyDataSetChanged();
+                }
+            }
         });
         mRecyclerView.setAdapter(mResultsAdapter);
 
-        if (!isInitialSearchDone) {
-            isInitialSearchDone = true;
-            page = 1;
+        if (!mIsInitialSearchDone) {
+            mIsInitialSearchDone = true;
+            mPage = 1;
             mKeyword = getIntent().getExtras().getString(EXTRA_KEYWORD);
             if (!TextUtils.isEmpty(mKeyword)) {
-                SearchTool.instance(this).queueSearchByTitle(this, mKeyword, page, this);
+                SearchTool.instance(this).queueSearchByTitle(this, mKeyword, mPage, this);
             } else {
                 Log.e(TAG, "ERROR: missing keyword extra!");
                 showNoResults();
@@ -110,8 +122,8 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_PAGE, page);
-        outState.putBoolean(KEY_IS_INITIAL_SEARCH_DONE, isInitialSearchDone);
+        outState.putInt(KEY_PAGE, mPage);
+        outState.putBoolean(KEY_IS_INITIAL_SEARCH_DONE, mIsInitialSearchDone);
         outState.putString(KEY_KEYWORD, mKeyword);
     }
 
@@ -142,7 +154,7 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
 
     private void loadMore(final int page) {
         Log.d(TAG, "loadMore: page=" + page);
-        this.page = page;
+        mPage = page;
         final SearchTool searchTool = SearchTool.instance(this);
         final int totalItems = searchTool.getTotalItems();
         if (!TextUtils.isEmpty(mKeyword) && (totalItems - (page * PAGE_SIZE) >= (1 - PAGE_SIZE))) {
@@ -162,45 +174,43 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
         showResults();
     }
 
-    private interface AdapterItemClickListener {
-        void onClick(int position);
+    /**
+     * Listen for clicks on the list item and 'heart' (favorite)
+     */
+    private interface ResultsAdapterClickListener {
+        void onItemClick(int position);
+
+        void onHeartClick(int position);
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<ResultsAdapter.ViewHolder> {
 
         private final WeakReference<Context> mContext;
-        private final ViewHolder.ViewHolderClickListener mViewHolderClickListener;
+        private final ResultsAdapterClickListener mListener;
 
-        ResultsAdapter(Context context, final AdapterItemClickListener aicListener) {
-            this.mContext = new WeakReference<>(context);
-            mViewHolderClickListener = new ViewHolder.ViewHolderClickListener() {
-                @Override
-                public void onClick(int position) {
-                    if (aicListener != null) {
-                        aicListener.onClick(position);
-                    }
-                }
-            };
+        ResultsAdapter(Context context, ResultsAdapterClickListener listener) {
+            mContext = new WeakReference<>(context);
+            mListener = listener;
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.summary_list_item, parent, false);
-            return new ViewHolder(view, mViewHolderClickListener);
+            return new ViewHolder(view, mListener);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final SearchTool searchTool = SearchTool.instance(mContext.get());
-            final List<SearchItem> items = searchTool.getSearchItems();
-            SearchItem item = items.get(position);
+            SearchTool searchTool = SearchTool.instance(mContext.get());
+            SearchItem item = searchTool.getItem(position);
             if (item != null) {
                 holder.title.setText(item.Title);
                 holder.position.setText(String.valueOf(position + 1));
                 holder.year.setText(item.Year);
                 holder.type.setText(item.Type);
                 holder.image.setImageUrl(item.Poster, searchTool.getImageLoader());
+                holder.heart.setImageResource(item.isFavorite ? R.mipmap.heart_full : R.mipmap.heart_empty);
             }
         }
 
@@ -215,9 +225,10 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
             final TextView title;
             final TextView year;
             final TextView type;
-            final ViewHolderClickListener listener;
+            final ImageView heart;
+            final ResultsAdapterClickListener listener;
 
-            ViewHolder(View itemView, ViewHolderClickListener listener) {
+            ViewHolder(View itemView, ResultsAdapterClickListener listener) {
                 super(itemView);
                 this.listener = listener;
                 itemView.setOnClickListener(this);
@@ -227,18 +238,22 @@ public class SearchResultsActivity extends Activity implements SearchTool.TitleS
                 title = (TextView) itemView.findViewById(R.id.title);
                 year = (TextView) itemView.findViewById(R.id.year);
                 type = (TextView) itemView.findViewById(R.id.type);
+                heart = (ImageView) itemView.findViewById(R.id.heartImage);
+                heart.setOnClickListener(this);
             }
 
             @Override
             public void onClick(View view) {
-                Log.v(TAG, "ViewHolder.onClick: position = " + getAdapterPosition());
+                final int position = getAdapterPosition();
                 if (listener != null) {
-                    listener.onClick(getAdapterPosition());
+                    if (view == itemView) {
+                        Log.v(TAG, "ViewHolder: clicked item " + position);
+                        listener.onItemClick(position);
+                    } else {
+                        Log.v(TAG, "ViewHolder: clicked heart " + position);
+                        listener.onHeartClick(position);
+                    }
                 }
-            }
-
-            interface ViewHolderClickListener {
-                void onClick(int position);
             }
         }
     }

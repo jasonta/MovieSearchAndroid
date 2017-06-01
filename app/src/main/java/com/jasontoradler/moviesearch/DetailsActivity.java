@@ -126,24 +126,21 @@ public class DetailsActivity extends Activity implements SearchTool.IdSearchList
             return data != null ? data.size() : 0;
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        /**
+         * Simple view holder to contain the key and value text fields.
+         */
+        static class ViewHolder extends RecyclerView.ViewHolder {
 
             final TextView key;
             final TextView value;
 
             ViewHolder(View itemView) {
                 super(itemView);
-                itemView.setOnClickListener(this);
                 key = (TextView) itemView.findViewById(android.R.id.text1);
                 key.setBackgroundResource(android.R.color.transparent);
                 value = (TextView) itemView.findViewById(android.R.id.text2);
                 value.setBackgroundResource(android.R.color.transparent);
                 value.setAutoLinkMask(Linkify.WEB_URLS);
-            }
-
-            @Override
-            public void onClick(View view) {
-                Log.v(TAG, "ViewHolder.onClick: position = " + getAdapterPosition());
             }
         }
     }
