@@ -17,7 +17,7 @@ import com.jasontoradler.moviesearch.network.SearchTool;
  * Launcher activity which allows user to enter a keyword to search the catalog and display any
  * results via {@link SearchResultsActivity}.
  */
-public class SearchActivity extends Activity {
+public class MainActivity extends Activity {
 
     private EditText searchBox;
 

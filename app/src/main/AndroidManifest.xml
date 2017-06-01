@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.jasontoradler.moviesearch.SearchActivity">
+            android:name="com.jasontoradler.moviesearch.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
- * Query the catalog based on a mKeyword passed in from {@link SearchActivity}. Display the list of
+ * Query the catalog based on a mKeyword passed in from {@link MainActivity}. Display the list of
  * results, supporting pagination via an "endless" scroll listener.
  */
 public class SearchResultsActivity extends Activity implements SearchTool.TitleSearchListener {
