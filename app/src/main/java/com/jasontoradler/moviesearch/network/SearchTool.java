@@ -37,19 +37,19 @@ import java.util.Map;
 public final class SearchTool {
 
     private static final String TAG = "SearchTool";
-    private static SearchTool instance;
+    private static SearchTool sInstance;
 
-    private final RequestQueue requestQueue;
-    private final ImageLoader imageLoader;
-    private final List<SearchItem> searchItems = new ArrayList<>();
-    private int totalItems;
-    private int prevPage;
-    private String prevKeyword;
+    private final RequestQueue mRequestQueue;
+    private final ImageLoader mImageLoader;
+    private final List<SearchItem> mSearchItems = new ArrayList<>();
+    private int mTotalItems;
+    private int mPrevPage;
+    private String mPrevKeyword;
 
     private SearchTool(final Context context) {
-        requestQueue = Volley.newRequestQueue(context);
+        mRequestQueue = Volley.newRequestQueue(context);
 
-        imageLoader = new ImageLoader(requestQueue,
+        mImageLoader = new ImageLoader(mRequestQueue,
                 new ImageLoader.ImageCache() {
                     private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(
                             (int) (Runtime.getRuntime().maxMemory() / 4)) {
@@ -72,35 +72,35 @@ public final class SearchTool {
     }
 
     public static SearchTool instance(final Context context) {
-        if (instance == null) {
-            instance = new SearchTool(context);
+        if (sInstance == null) {
+            sInstance = new SearchTool(context);
         }
-        return instance;
+        return sInstance;
     }
 
     public ImageLoader getImageLoader() {
-        return imageLoader;
+        return mImageLoader;
     }
 
     public void clearResults() {
-        searchItems.clear();
-        totalItems = 0;
-        prevKeyword = null;
-        prevPage = 0;
+        mSearchItems.clear();
+        mTotalItems = 0;
+        mPrevKeyword = null;
+        mPrevPage = 0;
     }
 
     public List<SearchItem> getSearchItems() {
-        return searchItems;
+        return mSearchItems;
     }
 
     public SearchItem getItem(int position) {
-        return (searchItems != null && position < searchItems.size())
-                ? searchItems.get(position)
+        return (mSearchItems != null && position < mSearchItems.size())
+                ? mSearchItems.get(position)
                 : null;
     }
 
     public int getTotalItems() {
-        return totalItems;
+        return mTotalItems;
     }
 
     public void queueSearchByTitle(
@@ -109,9 +109,9 @@ public final class SearchTool {
             int page,
             final TitleSearchListener titleSearchListener) {
         // only make a request for new data
-        if (prevKeyword == null || (page != prevPage && TextUtils.equals(keyword, prevKeyword))) {
-            prevPage = page;
-            prevKeyword = keyword;
+        if (mPrevKeyword == null || (page != mPrevPage && TextUtils.equals(keyword, mPrevKeyword))) {
+            mPrevPage = page;
+            mPrevKeyword = keyword;
             String encodedKeyword = null;
             try {
                 encodedKeyword = URLEncoder.encode(keyword, "UTF-8");
@@ -143,7 +143,7 @@ public final class SearchTool {
                             }
                         }
                     });
-            requestQueue.add(request);
+            mRequestQueue.add(request);
         }
     }
 
@@ -154,14 +154,14 @@ public final class SearchTool {
             if (searchResults != null) {
                 if (searchResults.Response.equalsIgnoreCase("true")) {
                     Log.d(TAG, "total items: " + searchResults.totalResults);
-                    totalItems = searchResults.totalResults;
+                    mTotalItems = searchResults.totalResults;
                     Log.d(TAG, "adding " + searchResults.Search.size() + " items");
-                    searchItems.addAll(searchResults.Search);
-                    Log.d(TAG, "current total: " + searchItems.size());
+                    mSearchItems.addAll(searchResults.Search);
+                    Log.d(TAG, "current total: " + mSearchItems.size());
                 } else {
                     Log.d(TAG, "response was false: error=" + searchResults.Error);
-                    searchItems.clear();
-                    totalItems = 0;
+                    mSearchItems.clear();
+                    mTotalItems = 0;
                 }
             }
         } catch (IOException e) {
@@ -204,7 +204,7 @@ public final class SearchTool {
                         }
                     }
                 });
-        requestQueue.add(request);
+        mRequestQueue.add(request);
     }
 
     private MovieDetails parseIdSearchResults(final String response, final String imdbId) {
